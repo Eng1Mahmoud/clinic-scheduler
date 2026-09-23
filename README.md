@@ -152,8 +152,9 @@ summary with a link to the full discussion further down.)*
 
 ## API reference
 
-All responses are JSON. Errors share one shape so the client can branch on a code
-instead of parsing prose:
+API responses are JSON except for the DICOM file endpoint, which streams binary
+`application/dicom` bytes. JSON errors share one shape so the client can branch on a
+code instead of parsing prose:
 
 ```json
 { "error": { "code": "APPOINTMENT_CONFLICT", "message": "…", "details": [] } }
@@ -436,7 +437,7 @@ trivially testable.
 
 | Concern | Handling |
 |---|---|
-| Patient identifiers in the study | Never parsed, never returned, never rendered — see *Safe metadata only*. `GET /imaging-studies/:id/file` streams bytes and does not read attributes at all, and a test asserts the metadata payload contains no `patientName`/`patientId`/`patientBirthDate` key |
+| Patient identifiers in the study | The server never parses or returns patient-identifying tags. The browser decoder reads only an explicit allow-list of safe metadata and never renders identifying fields. `GET /imaging-studies/:id/file` streams opaque bytes, and a test asserts the metadata payload contains no `patientName`/`patientId`/`patientBirthDate` key |
 | Patient names typed into the app | `patientName` is a clinical record field, not a secret; it is stored and returned as domain data. The rule enforced here is the assignment's: nothing *from the DICOM file* is exposed |
 | Error leakage | `errorHandler` logs unexpected errors server-side and returns a generic `INTERNAL_ERROR`; no stack traces or SQL reaches the client |
 | SQL injection | Every statement uses parameterised `$1` placeholders — no string interpolation of user input |
@@ -512,7 +513,7 @@ them, so the requests genuinely interleave server-side.
 Streams the `.dcm` bytes with `Content-Type: application/dicom`. The server never
 parses the file, so no patient attribute can leak through this endpoint (see
 *Security & privacy*). `404 IMAGING_STUDY_NOT_FOUND` for an unknown id, `400
-INVALID_FILE_PATH` if the stored path resolves outside `server/` (path-traversal
+INVALID_FILE_PATH` if the stored path resolves outside `server/storage/dicom/` (path-traversal
 guard), and `504 FILE_TRANSFER_TIMEOUT` if the transfer does not complete within 30
 seconds. A read error on the underlying stream is surfaced as `500 FILE_READ_ERROR`.
 The resolved path is asserted to stay inside `server/storage/dicom/` to rule out path
