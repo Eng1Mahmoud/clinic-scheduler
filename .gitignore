@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+*.tsbuildinfo
+coverage/
+.DS_Store
+
+# Copied from the Cornerstone codec packages on `npm install`
+# (client/scripts/copy-dicom-wasm.mjs) — never committed.
+client/public/dicom-wasm/

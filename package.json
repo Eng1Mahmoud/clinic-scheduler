@@ -1,0 +1,19 @@
+{
+  "name": "clinic-app",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "migrate": "npm run migrate --workspace server",
+    "seed": "npm run seed --workspace server",
+    "dev:server": "npm run dev --workspace server",
+    "dev:client": "npm run dev --workspace client",
+    "test": "npm run test --workspace server"
+  }
+}
+

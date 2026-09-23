@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: clinic-app-db
+    environment:
+      POSTGRES_USER: clinic
+      POSTGRES_PASSWORD: clinic_dev_password
+      POSTGRES_DB: clinic_appointments
+    ports:
+      - "5434:5432"
+    volumes:
+      - clinic_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clinic -d clinic_appointments"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  clinic_pgdata:
