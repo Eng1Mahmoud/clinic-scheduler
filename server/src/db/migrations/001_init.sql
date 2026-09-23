@@ -1,3 +1,4 @@
+-- Enables equality checks in the GiST exclusion constraint below.
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 CREATE TABLE doctors (
@@ -19,6 +20,7 @@ CREATE TABLE appointments (
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
   CHECK (ends_at > starts_at),
 
+  -- Prevents a doctor from having overlapping active appointments.
   CONSTRAINT no_doctor_overlap EXCLUDE USING gist (
     doctor_id WITH =,
     tstzrange(starts_at, ends_at) WITH &&
